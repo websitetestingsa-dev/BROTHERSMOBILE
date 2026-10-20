@@ -39,6 +39,12 @@ export async function onRequest({request,env,params}){
  const [products,promos]=await Promise.all([env.DB.prepare(`SELECT * FROM products WHERE publish_status='published' AND sample=0 AND price IS NOT NULL AND price>0 AND qty IS NOT NULL AND qty>=0 AND length(trim(coalesce(image,'')))>0 AND length(trim(coalesce(description,'')))>=10 ORDER BY updated_at DESC LIMIT 500`).all(),env.DB.prepare('SELECT * FROM promos ORDER BY updated_at DESC LIMIT 100').all()]);
  return json({products:products.results.map(x=>({...x,sample:!!x.sample,price:x.price??'',qty:x.qty??''})),promos:promos.results,settings:{instagram:'https://www.instagram.com/2brotherstreading/',whatsapp:'97466091655'}});
  }
+
+ // Public owner-approved highlights; no demo records or draft highlights exposed.
+ if(path==='/highlights'&&method==='GET'){
+  const result=await env.DB.prepare("SELECT id,kind,title,subtitle,image,price_label,badge,link_url,expires_at FROM bmt_highlights WHERE visible=1 AND (expires_at IS NULL OR date(expires_at)>=date('now')) ORDER BY sort_order ASC,created_at DESC LIMIT 60").all();
+  return json({highlights:result.results});
+ }
  if(path==='/business-profile'&&method==='GET'){
   const rows=(await env.DB.prepare('SELECT key,value FROM site_settings').all()).results;
   const settings=Object.fromEntries(rows.map(r=>[r.key,r.value]));
@@ -69,6 +75,31 @@ export async function onRequest({request,env,params}){
  }
  const a=await actor(request,env);if(!a)return deny(401);
  if(path==='/me'&&method==='GET')return json(a);
+
+ if(path==='/highlights/manage'&&method==='GET'){
+  if(a.role!=='owner')return deny();
+  return json({highlights:(await env.DB.prepare('SELECT * FROM bmt_highlights ORDER BY sort_order ASC,created_at DESC LIMIT 200').all()).results});
+ }
+ if(path==='/highlights/manage'&&method==='POST'){
+  if(a.role!=='owner')return deny();
+  const x=await body(request);if(!x)return json({error:'Invalid showcase'},400);
+  const kind=String(x.kind||''),title=String(x.title||'').trim(),subtitle=String(x.subtitle||'').trim(),image=String(x.image||'').trim(),priceLabel=String(x.price_label||'').trim(),badge=String(x.badge||'').trim(),link=String(x.link_url||'').trim(),expires=String(x.expires_at||'').trim();
+  if(!['device','offer','launch','announcement'].includes(kind)||!title||title.length>140||subtitle.length>500||priceLabel.length>90||badge.length>60||!safeImage(image))return json({error:'Check title, type, image and text lengths'},400);
+  if(link){try{const u=new URL(link);if(u.protocol!=='https:'||u.username||u.password||link.length>500)return json({error:'Use a valid HTTPS link'},400)}catch{return json({error:'Use a valid HTTPS link'},400)}}
+  if(expires&&!/^\d{4}-\d{2}-\d{2}$/.test(expires))return json({error:'Invalid expiry date'},400);
+  const order=Number(x.sort_order||0);if(!Number.isInteger(order)||order<0||order>10000)return json({error:'Invalid display order'},400);
+  const id=String(x.id||'').trim()||crypto.randomUUID();if(!/^[a-zA-Z0-9_-]{1,80}$/.test(id))return json({error:'Invalid ID'},400);
+  const old=await env.DB.prepare('SELECT id FROM bmt_highlights WHERE id=?').bind(id).first();
+  if(old){await env.DB.prepare('UPDATE bmt_highlights SET kind=?,title=?,subtitle=?,image=?,price_label=?,badge=?,link_url=?,visible=?,sort_order=?,expires_at=? WHERE id=?').bind(kind,title,subtitle,image,priceLabel,badge,link,x.visible===true||x.visible==='on'?1:0,order,expires||null,id).run();}
+  else{await env.DB.prepare('INSERT INTO bmt_highlights(id,kind,title,subtitle,image,price_label,badge,link_url,visible,sort_order,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)').bind(id,kind,title,subtitle,image,priceLabel,badge,link,x.visible===true||x.visible==='on'?1:0,order,expires||null).run();}
+  await audit(env.DB,a,old?'highlight.update':'highlight.create',id);return json({ok:true,id});
+ }
+ if(path.startsWith('/highlights/manage/')&&method==='DELETE'){
+  if(a.role!=='owner')return deny();const id=path.slice('/highlights/manage/'.length);if(!/^[a-zA-Z0-9_-]{1,80}$/.test(id))return json({error:'Invalid ID'},400);
+  const result=await env.DB.prepare('DELETE FROM bmt_highlights WHERE id=?').bind(id).run();if(!result.meta?.changes)return json({error:'Not found'},404);
+  await audit(env.DB,a,'highlight.delete',id);return json({ok:true});
+ }
+
  if(path==='/business-profile/all'&&method==='GET'){
   if(a.role!=='owner')return deny();
   const rows=(await env.DB.prepare('SELECT key,value FROM site_settings').all()).results;
