@@ -1,24 +1,16 @@
-BMT ONE — MERGED BUSINESS PROFILE UPDATE
+BMT ONE — Grouped Inventory Manager
 
-These index.html, manage.html, and functions/api/[[path]].js files were merged directly with the THREE files you uploaded in this conversation. They retain the phone variant editor, vendor receiving, inventory dashboard and staff API routes from your uploaded files.
+Files: manage.html, inventory-publishing.js, inventory-publishing.css
 
-BACK UP YOUR CURRENT GITHUB REPOSITORY FIRST.
+INSTALL:
+1. Back up current manage.html and inventory-publishing.js.
+2. Upload these three files to the same directory as manage.html in GitHub.
+3. Do not overwrite your API or run SQL: this UI uses the existing /api/products and /api/products/publish/:id endpoints.
+4. Sign in as owner, refresh, and test search, category filter, pagination, Save as draft and Publish.
 
-UPLOAD TO GITHUB (preserve folders):
-index.html
-manage.html
-business.html
-business-admin.js
-business-profile.js
-business-profile.css
-functions/api/[[path]].js   (IMPORTANT: inside functions/api/)
-
-DO NOT UPLOAD SQL TO GITHUB. In Cloudflare D1 > bmt-one-db > Console run business-settings.sql. This contains no BEGIN or COMMIT.
-
-Keep all your other existing repository files unchanged (styles, manage.js, shop.js, inventory JS/CSS, assets, etc.).
-
-After Cloudflare Pages deploys, sign in at /manage.html as OWNER, then click Business Profile & Social Links or visit /business.html. Add or edit your numbers, social URLs, and optionally enable the partnership card. Save and refresh homepage.
-
-The partnership card is disabled by default. No investment payments are processed.
-
-NOTES: Merged against uploaded files, not a fresh live GitHub checkout. JS syntax checked locally; live D1 and Cloudflare Pages deployment have not been tested.
+IMPORTANT:
+- Based on the latest locally available manage.html from the previous BMT mobile/private-stock package. Compare with live GitHub before replacing if newer edits exist.
+- Category grouping is computed from existing product names/brands/categories. No product records are deleted or reclassified in D1.
+- Existing product editor/importer remains on page. For true single-workflow publishing, review existing manage.js and importer logic separately.
+- Server must enforce private drafts and completeness; this UI cannot guarantee public catalog privacy on its own.
+- Existing products marked published but incomplete may still be labeled published in D1; public API must filter incomplete products.
