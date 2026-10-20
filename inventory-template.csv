@@ -1,0 +1,6 @@
+﻿SKU,Name,Brand,Category,Item Type,Protector Quality,Price QAR,Quantity,Image URL,Description
+BMT-PHONE-001,Example phone — replace with real model,Samsung,Phones,Smartphone,,,,,Example only — replace with verified stock
+BMT-CASE-001,Silicone case for iPhone,Generic,Accessories,Phone case / cover,,,,assets/cases-covers.png,Example only
+BMT-AUDIO-001,Bluetooth earbuds,Generic,Accessories,Headphones — wireless,,,,assets/earbuds-premium.png,Example only
+BMT-CHARGE-001,USB-C fast charger,Generic,Accessories,Charger — wired,,,,assets/chargers-premium.png,Example only
+BMT-PROT-001,Privacy glass protector,Add brand later,Accessories,Screen protector,Privacy,,,assets/screen-protectors.png,Example only
