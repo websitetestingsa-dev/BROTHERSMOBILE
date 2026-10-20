@@ -1,24 +1,24 @@
-BROTHERS MOBILE TRADING & SERVICES — STATIC WEBSITE
+BMT ONE — MERGED BUSINESS PROFILE UPDATE
 
-Open index.html in any modern browser. Upload the contents of this folder to Netlify, Cloudflare Pages, GitHub Pages, or any static hosting service.
+These index.html, manage.html, and functions/api/[[path]].js files were merged directly with the THREE files you uploaded in this conversation. They retain the phone variant editor, vendor receiving, inventory dashboard and staff API routes from your uploaded files.
 
-FILES
-index.html — site structure and text
-styles.css — black, gold and glass theme, responsive layouts
-script.js — mobile navigation, language switch, reveal effects
-assets/storefront.jpg — user-provided store photograph
+BACK UP YOUR CURRENT GITHUB REPOSITORY FIRST.
 
-IMPORTANT BEFORE PUBLISHING
-1. Confirm the exact business name spelling and location (currently Al Watan Center, Doha, Qatar, based on user input and storefront photograph).
-2. Confirm Instagram username; currently links to https://www.instagram.com/2brotherstreading/
-3. Confirm inventory, services, pricing and store opening hours directly with the owner. None are claimed as verified.
-4. Replace CSS illustrative product art with approved actual product photographs if desired.
-5. Google Maps button performs a search, not a verified pin. Replace with exact Google Maps place link when available.
-6. The website is frontend-only: there is no shopping checkout, account login, backend, or database.
-7. No third-party Instagram feed is scraped or embedded. Instagram links open the supplied profile.
+UPLOAD TO GITHUB (preserve folders):
+index.html
+manage.html
+business.html
+business-admin.js
+business-profile.js
+business-profile.css
+functions/api/[[path]].js   (IMPORTANT: inside functions/api/)
 
-MAP UPDATE: The map shown on the website is an interactive OpenStreetMap embed (requires internet). The Apple Maps button opens the Al Watan Center search in Apple Maps. An embedded native Apple Map requires Apple MapKit JS configuration and credentials. Confirm the precise storefront pin before publishing.
+DO NOT UPLOAD SQL TO GITHUB. In Cloudflare D1 > bmt-one-db > Console run business-settings.sql. This contains no BEGIN or COMMIT.
 
-THEMES: Dark mode defaults to OLED black with gold and subtle icy-blue glow. Use the Light/Dark toggle in the header. Choice is saved in your browser.
+Keep all your other existing repository files unchanged (styles, manage.js, shop.js, inventory JS/CSS, assets, etc.).
 
-New images: four AI-generated iPhone 18 Pro Max concept finishes, showcase banner, earbuds, charger, and services emblem. Concept images do not confirm official product appearance or stock. For authentic listings, replace with shop photos and prices.
+After Cloudflare Pages deploys, sign in at /manage.html as OWNER, then click Business Profile & Social Links or visit /business.html. Add or edit your numbers, social URLs, and optionally enable the partnership card. Save and refresh homepage.
+
+The partnership card is disabled by default. No investment payments are processed.
+
+NOTES: Merged against uploaded files, not a fresh live GitHub checkout. JS syntax checked locally; live D1 and Cloudflare Pages deployment have not been tested.
