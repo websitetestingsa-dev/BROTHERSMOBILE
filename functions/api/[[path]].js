@@ -45,6 +45,25 @@ export async function onRequest({request,env,params}){
   const links=(await env.DB.prepare('SELECT id,platform,label,url,visible,sort_order FROM social_links WHERE visible=1 ORDER BY sort_order,id LIMIT 50').all()).results;
   return json({settings,links});
  }
+
+ // Public customer reviews: only approved submissions are visible.
+ if(path==='/reviews'&&method==='GET'){
+  const rows=(await env.DB.prepare("SELECT id,display_name,rating,review,created_at FROM customer_reviews WHERE status='approved' ORDER BY created_at DESC LIMIT 40").all()).results;
+  const totals=await env.DB.prepare("SELECT COUNT(*) AS count, ROUND(AVG(rating),1) AS average FROM customer_reviews WHERE status='approved'").first();
+  return json({reviews:rows,count:totals.count||0,average:totals.average||0});
+ }
+ if(path==='/reviews'&&method==='POST'){
+  const x=await body(request);if(!x)return json({error:'Invalid review'},400);
+  if(x.website)return json({message:'Thanks for your feedback. Your review is awaiting approval.'});
+  const name=String(x.name||'').trim(),review=String(x.review||'').trim(),rating=Number(x.rating);
+  if(name.length<2||name.length>60||review.length<15||review.length>800||!Number.isInteger(rating)||rating<1||rating>5)return json({error:'Please enter a name, 1–5 stars, and a review of 15–800 characters.'},400);
+  const ip=request.headers.get('CF-Connecting-IP')||'unknown';const visitor=await digest(ip+'|'+(env.REVIEW_HASH_SECRET||'bmt-review-limit'));
+  const recent=await env.DB.prepare("SELECT COUNT(*) AS n FROM customer_reviews WHERE visitor_hash=? AND created_at>=datetime('now','-1 day')").bind(visitor).first();
+  if(recent.n>=3)return json({error:'Review limit reached. Please try again tomorrow.'},429);
+  await env.DB.prepare("INSERT INTO customer_reviews(id,display_name,rating,review,status,visitor_hash) VALUES(?,?,?,?, 'pending',?)").bind(crypto.randomUUID(),name,rating,review,visitor).run();
+  return json({message:'Thank you! Your review was submitted and is awaiting moderation.'},201);
+ }
+
  if(path.startsWith('/image/')&&method==='GET'){
  if(!env.IMAGES)return json({error:'R2 not configured'},503);const key=path.slice(7);if(!/^[a-f0-9-]{36}\.(png|jpg|webp|gif)$/.test(key))return deny(404);const obj=await env.IMAGES.get(key);if(!obj)return deny(404);return new Response(obj.body,{headers:{'Content-Type':obj.httpMetadata?.contentType||'image/webp','Cache-Control':'public,max-age=86400','X-Content-Type-Options':'nosniff'}});
  }
@@ -67,6 +86,20 @@ export async function onRequest({request,env,params}){
   statements.push(env.DB.prepare('DELETE FROM social_links'));
   for(let i=0;i<x.links.length;i++){const l=x.links[i];statements.push(env.DB.prepare('INSERT INTO social_links(id,platform,label,url,visible,sort_order) VALUES(?,?,?,?,?,?)').bind(crypto.randomUUID(),l.platform,l.label.trim(),l.url,l.visible===false?0:1,i));}
   await env.DB.batch(statements);await audit(env.DB,a,'business.update','Profile and social links');return json({ok:true});
+ }
+
+
+ if(path==='/reviews/moderation'&&method==='GET'){
+  if(a.role!=='owner')return deny();
+  return json((await env.DB.prepare('SELECT id,display_name,rating,review,status,created_at FROM customer_reviews ORDER BY created_at DESC LIMIT 300').all()).results);
+ }
+ if(path.startsWith('/reviews/moderation/')&&method==='PATCH'){
+  if(a.role!=='owner')return deny();
+  const id=path.slice('/reviews/moderation/'.length);const x=await body(request);
+  if(!/^[0-9a-f-]{36}$/.test(id)||!['approved','pending','rejected'].includes(x?.status))return json({error:'Invalid moderation request'},400);
+  const result=await env.DB.prepare('UPDATE customer_reviews SET status=? WHERE id=?').bind(x.status,id).run();
+  if(!result.meta?.changes)return json({error:'Review not found'},404);
+  await audit(env.DB,a,'review.moderate',id+':'+x.status);return json({ok:true});
  }
 
  if(path==='/products'&&method==='GET')return json((await env.DB.prepare('SELECT * FROM products ORDER BY updated_at DESC LIMIT 500').all()).results);
