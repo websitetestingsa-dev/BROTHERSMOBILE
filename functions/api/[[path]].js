@@ -39,11 +39,30 @@ export async function onRequest({request,env,params}){
  const [products,promos]=await Promise.all([env.DB.prepare('SELECT * FROM products ORDER BY updated_at DESC LIMIT 500').all(),env.DB.prepare('SELECT * FROM promos ORDER BY updated_at DESC LIMIT 100').all()]);
  return json({products:products.results.map(x=>({...x,sample:!!x.sample,price:x.price??'',qty:x.qty??''})),promos:promos.results,settings:{instagram:'https://www.instagram.com/2brotherstreading/',whatsapp:'97466091655'}});
  }
+ if(path==='/business-profile'&&method==='GET'){
+  const rows=(await env.DB.prepare('SELECT key,value FROM site_settings').all()).results;
+  const settings=Object.fromEntries(rows.map(r=>[r.key,r.value]));
+  const links=(await env.DB.prepare('SELECT id,platform,label,url,visible,sort_order FROM social_links WHERE visible=1 ORDER BY sort_order,id LIMIT 50').all()).results;
+  return json({settings,links});
+ }
  if(path.startsWith('/image/')&&method==='GET'){
  if(!env.IMAGES)return json({error:'R2 not configured'},503);const key=path.slice(7);if(!/^[a-f0-9-]{36}\.(png|jpg|webp|gif)$/.test(key))return deny(404);const obj=await env.IMAGES.get(key);if(!obj)return deny(404);return new Response(obj.body,{headers:{'Content-Type':obj.httpMetadata?.contentType||'image/webp','Cache-Control':'public,max-age=86400','X-Content-Type-Options':'nosniff'}});
  }
  const a=await actor(request,env);if(!a)return deny(401);
  if(path==='/me'&&method==='GET')return json(a);
+ if(path==='/business-profile'&&method==='PUT'){
+  if(a.role!=='owner')return deny();
+  const x=await body(request);if(!x||!Array.isArray(x.links)||x.links.length>50)return json({error:'Invalid profile'},400);
+  const settings={business_name:String(x.business_name||'').trim().slice(0,120),whatsapp1:String(x.whatsapp1||'').replace(/[^0-9]/g,'').slice(0,15),whatsapp2:String(x.whatsapp2||'').replace(/[^0-9]/g,'').slice(0,15),partnership_enabled:x.partnership_enabled?'1':'0',partnership_whatsapp:String(x.partnership_whatsapp||'').replace(/[^0-9]/g,'').slice(0,15),partnership_message:String(x.partnership_message||'').trim().slice(0,600)};
+  if(!settings.whatsapp1||settings.whatsapp1.length<8)return json({error:'Primary WhatsApp number is required'},400);
+  const allowed=['Instagram','TikTok','YouTube','Facebook','Snapchat','WhatsApp','X','LinkedIn','Pinterest','Telegram','Google Maps','Website','Other'];
+  for(const l of x.links){if(!allowed.includes(l.platform)||typeof l.label!=='string'||!l.label.trim()||l.label.length>70||typeof l.url!=='string'||l.url.length>500)return json({error:'Invalid social link'},400);let u;try{u=new URL(l.url)}catch{return json({error:'Invalid link URL'},400)}if(u.protocol!=='https:'||u.username||u.password)return json({error:'Only safe HTTPS links are allowed'},400);}
+  const statements=Object.entries(settings).map(([k,v])=>env.DB.prepare('INSERT INTO site_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').bind(k,v));
+  statements.push(env.DB.prepare('DELETE FROM social_links'));
+  for(let i=0;i<x.links.length;i++){const l=x.links[i];statements.push(env.DB.prepare('INSERT INTO social_links(id,platform,label,url,visible,sort_order) VALUES(?,?,?,?,?,?)').bind(crypto.randomUUID(),l.platform,l.label.trim(),l.url,l.visible===false?0:1,i));}
+  await env.DB.batch(statements);await audit(env.DB,a,'business.update','Profile and social links');return json({ok:true});
+ }
+
  if(path==='/products'&&method==='GET')return json((await env.DB.prepare('SELECT * FROM products ORDER BY updated_at DESC LIMIT 500').all()).results);
  if(path==='/products'&&method==='POST'){
  const x=await body(request);if(!x||typeof x.name!=='string'||!x.name.trim()||x.name.length>140||!['Phones','Accessories','Other'].includes(x.category)||!safeImage(x.image||'')||String(x.description||'').length>2000||String(x.brand||'').length>150)return json({error:'Invalid product'},400);
