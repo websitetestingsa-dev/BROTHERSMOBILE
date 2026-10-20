@@ -1,0 +1,30 @@
+/* BMT ONE | discreet staff entry + premium responsive navigation */
+.bmt-mobile-staff{display:none!important}
+.bmt-footer-staff{appearance:none;border:1px solid rgba(210,176,111,.35);border-radius:999px;background:rgba(204,168,101,.07);color:#dfc48d;font:600 12px/1.3 inherit;font-family:inherit;font-size:12px;letter-spacing:.04em;padding:10px 15px;cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+.bmt-footer-staff:hover,.bmt-footer-staff:focus-visible{background:rgba(204,168,101,.18);border-color:#d5b778;transform:translateY(-1px)}
+.bmt-lux-footer-links{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px}
+@media(min-width:761px){.navtools{gap:clamp(6px,1.2vw,15px)}.nav{gap:10px}.nav nav{gap:clamp(7px,1vw,17px)}.navtools .navcta{white-space:nowrap}}
+@media(max-width:760px){
+  .nav.glass{top:10px;left:3%;width:94%;max-width:94%;min-height:64px;height:auto;padding:10px 13px;gap:8px;border-radius:17px;z-index:100}
+  .nav .brand{min-width:0;flex:1 1 auto;gap:7px}
+  .nav .logo-image{flex-shrink:0;max-width:42px;max-height:42px;object-fit:contain}
+  .nav .brandname{min-width:0;line-height:1.12;font-size:clamp(10px,2.6vw,13px)}
+  .nav .brandname small{font-size:clamp(7px,1.65vw,9px);letter-spacing:.08em}
+  .navtools{flex:0 0 auto;gap:5px;align-items:center}
+  .navtools .navcta{display:none!important}
+  .navtools .theme-toggle{font-size:11px!important;padding:8px!important;min-height:38px;white-space:nowrap}
+  .navtools #lang{padding:8px 5px;min-height:38px;font-size:12px}
+  .navtools #menu{display:flex!important;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid rgba(215,183,118,.35);border-radius:11px;background:rgba(217,188,130,.08);color:#e4c58b;cursor:pointer}
+  .nav #navlinks{position:absolute;top:calc(100% + 9px);left:0;right:0;width:100%;max-height:min(76vh,650px);overflow-y:auto;overscroll-behavior:contain;box-sizing:border-box;display:none;flex-direction:column;align-items:stretch;gap:0;padding:12px;background:#12110f;border:1px solid rgba(220,186,115,.28);border-radius:16px;box-shadow:0 22px 50px rgba(0,0,0,.55);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+  .nav #navlinks.open{display:flex!important}
+  .nav #navlinks a{display:flex;align-items:center;min-height:46px;padding:12px 14px;border-radius:9px;font-size:14px;font-weight:600;letter-spacing:.01em;text-decoration:none;color:#e9e2d6;box-sizing:border-box}
+  .nav #navlinks a:hover,.nav #navlinks a:focus-visible{background:rgba(213,177,107,.12);color:#e6c787}
+  .nav #navlinks .bmt-mobile-staff{display:flex!important;margin-top:9px;padding-top:17px;border-top:1px solid rgba(211,175,105,.25);border-radius:0;color:#d7b87a;font-size:13px}
+  .bmt-lux-footer-links{justify-content:center;gap:10px 17px}
+}
+@media(max-width:380px){.nav.glass{padding:8px 9px}.navtools{gap:3px}.navtools .theme-toggle{font-size:10px!important;padding:6px!important}.nav .logo-image{max-width:34px;max-height:34px}.nav .brandname{font-size:10px}.navtools #menu{width:36px;height:36px}}
+body[data-theme="light"] .nav #navlinks{background:#f6f2eb;border-color:rgba(110,84,46,.2)}
+body[data-theme="light"] .nav #navlinks a{color:#2c2418}
+body[data-theme="light"] .nav #navlinks .bmt-mobile-staff{color:#73521e}
+body[data-theme="light"] .bmt-footer-staff{color:#74501b;border-color:rgba(112,78,25,.35)}
+@media(prefers-reduced-motion:reduce){.bmt-footer-staff{transition:none}}
