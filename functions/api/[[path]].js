@@ -173,7 +173,17 @@ export async function onRequest({request,env,params}){
  if(path==='/staff'&&method==='POST'){if(a.role!=='owner')return deny();const x=await body(request);const email=String(x?.email||'').toLowerCase().trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||email===a.email)return json({error:'Invalid staff email'},400);const password=String(x?.password||'');if(password.length<14||password.length>128)return json({error:'Staff password must be 14–128 characters'},400);const salt=hex(crypto.getRandomValues(new Uint8Array(16)));const passhash=await pbkdf(password,salt);
  const existing=await env.DB.prepare('SELECT role FROM staff WHERE email=?').bind(email).first();if(existing?.role==='owner')return deny();await env.DB.prepare(`INSERT INTO staff(email,role,expires_at,revoked,staff_status,password_salt,password_hash) VALUES(?,'staff',NULL,0,'active',?,?) ON CONFLICT(email) DO UPDATE SET role='staff',expires_at=NULL,revoked=0,staff_status='active',password_salt=excluded.password_salt,password_hash=excluded.password_hash`).bind(email,salt,passhash).run();await env.DB.prepare('DELETE FROM sessions WHERE email=?').bind(email).run();await audit(env.DB,a,'staff.invite',email);return json({ok:true,note:'Account allowlisted; share the login link separately. No invitation email is sent.'});}
  if(path.startsWith('/staff/')&&(method==='PATCH'||method==='DELETE')){if(a.role!=='owner')return deny();let email;try{email=decodeURIComponent(path.slice(7)).toLowerCase().trim()}catch{return json({error:'Invalid email'},400)}const existing=await env.DB.prepare('SELECT role,staff_status FROM staff WHERE email=?').bind(email).first();if(!existing)return json({error:'Worker not found'},404);if(existing.role!=='staff')return deny();if(method==='DELETE'){await env.DB.prepare('DELETE FROM sessions WHERE email=?').bind(email).run();await env.DB.prepare('DELETE FROM staff WHERE email=? AND role=\'staff\'').bind(email).run();await audit(env.DB,a,'staff.delete',email);return json({ok:true})}const data=await body(request);const action=String(data?.action||'');if(!['block','unblock','fire'].includes(action))return json({error:'Invalid action'},400);const next=action==='block'?'blocked':action==='fire'?'fired':'active';await env.DB.prepare('UPDATE staff SET staff_status=?,revoked=? WHERE email=? AND role=\'staff\'').bind(next,next==='active'?0:1,email).run();await env.DB.prepare('DELETE FROM sessions WHERE email=?').bind(email).run();await audit(env.DB,a,'staff.'+action,email);return json({ok:true,status:next});}
- if(path==='/activity'&&method==='GET'){if(a.role!=='owner')return deny();return json((await env.DB.prepare('SELECT email,action,detail,created_at FROM activity ORDER BY id DESC LIMIT 100').all()).results);}
+ if(path==='/activity'&&method==='GET'){if(a.role!=='owner')return deny();return json((await env.DB.prepare('SELECT id,email,action,detail,created_at FROM activity ORDER BY id DESC LIMIT 100').all()).results);}
+ if(path.startsWith('/activity/')&&method==='DELETE'){
+   if(a.role!=='owner')return deny();
+   const id=path.slice('/activity/'.length);
+   if(!/^[1-9][0-9]{0,14}$/.test(id)||!Number.isSafeInteger(Number(id)))return json({error:'Invalid activity ID'},400);
+   const row=await env.DB.prepare('SELECT id,email,action FROM activity WHERE id=?').bind(Number(id)).first();
+   if(!row)return json({error:'Activity entry not found'},404);
+   await env.DB.prepare('DELETE FROM activity WHERE id=?').bind(Number(id)).run();
+   await audit(env.DB,a,'activity.delete','Deleted activity #'+id+' ('+row.action+')');
+   return json({ok:true});
+ }
  return json({error:'Not found'},404);
  }catch(e){console.error(e);return json({error:'Server error; check Cloudflare logs and bindings'},500)}
 }
