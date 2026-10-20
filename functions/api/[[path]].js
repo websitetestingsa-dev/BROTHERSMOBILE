@@ -36,7 +36,7 @@ export async function onRequest({request,env,params}){
  if(path==='/login'&&method==='POST')return login(request,env);
  if(path==='/logout'&&method==='POST'){const raw=(request.headers.get('Cookie')||'').match(/(?:^|;\s*)bmt_session=([a-f0-9]{64})(?:;|$)/)?.[1];if(raw)await env.DB.prepare('DELETE FROM sessions WHERE token_hash=?').bind(await digest(raw)).run();const res=json({ok:true});res.headers.set('Set-Cookie',cookie('bmt_session','',0));return res;}
  if(path==='/catalog'&&method==='GET'){
- const [products,promos]=await Promise.all([env.DB.prepare('SELECT * FROM products ORDER BY updated_at DESC LIMIT 500').all(),env.DB.prepare('SELECT * FROM promos ORDER BY updated_at DESC LIMIT 100').all()]);
+ const [products,promos]=await Promise.all([env.DB.prepare(`SELECT * FROM products WHERE publish_status='published' AND sample=0 AND price IS NOT NULL AND price>0 AND qty IS NOT NULL AND qty>=0 AND length(trim(coalesce(image,'')))>0 AND length(trim(coalesce(description,'')))>=10 ORDER BY updated_at DESC LIMIT 500`).all(),env.DB.prepare('SELECT * FROM promos ORDER BY updated_at DESC LIMIT 100').all()]);
  return json({products:products.results.map(x=>({...x,sample:!!x.sample,price:x.price??'',qty:x.qty??''})),promos:promos.results,settings:{instagram:'https://www.instagram.com/2brotherstreading/',whatsapp:'97466091655'}});
  }
  if(path==='/business-profile'&&method==='GET'){
@@ -107,7 +107,7 @@ export async function onRequest({request,env,params}){
  const x=await body(request);if(!x||typeof x.name!=='string'||!x.name.trim()||x.name.length>140||!['Phones','Accessories','Other'].includes(x.category)||!safeImage(x.image||'')||String(x.description||'').length>2000||String(x.brand||'').length>150)return json({error:'Invalid product'},400);
  const price=x.price===''||x.price==null?null:Number(x.price),qty=x.qty===''||x.qty==null?null:Number(x.qty);if((price!==null&&(!Number.isFinite(price)||price<0||price>1e7))||(qty!==null&&(!Number.isInteger(qty)||qty<0||qty>1e7)))return json({error:'Invalid price or quantity'},400);
  const id=typeof x.id==='string'&&/^[a-zA-Z0-9_-]{1,80}$/.test(x.id)?x.id:crypto.randomUUID();
- await env.DB.prepare(`INSERT INTO products(id,name,brand,category,price,qty,image,description,sample) VALUES(?,?,?,?,?,?,?,?,0) ON CONFLICT(id) DO UPDATE SET name=excluded.name,brand=excluded.brand,category=excluded.category,price=excluded.price,qty=excluded.qty,image=excluded.image,description=excluded.description,sample=0,updated_at=CURRENT_TIMESTAMP`).bind(id,x.name.trim(),x.brand||'',x.category,price,qty,x.image||'',x.description||'').run();await audit(env.DB,a,'product.save',id);return json({id});
+ await env.DB.prepare(`INSERT INTO products(id,name,brand,category,price,qty,image,description,sample,publish_status) VALUES(?,?,?,?,?,?,?,?,0,'draft') ON CONFLICT(id) DO UPDATE SET name=excluded.name,brand=excluded.brand,category=excluded.category,price=excluded.price,qty=excluded.qty,image=excluded.image,description=excluded.description,sample=0,publish_status='draft',updated_at=CURRENT_TIMESTAMP`).bind(id,x.name.trim(),x.brand||'',x.category,price,qty,x.image||'',x.description||'').run();await audit(env.DB,a,'product.save',id);return json({id});
  }
  if(path.startsWith('/products/')&&method==='DELETE'){const id=path.slice(10);if(!/^[a-zA-Z0-9_-]{1,80}$/.test(id))return json({error:'Invalid ID'},400);await env.DB.prepare('DELETE FROM products WHERE id=?').bind(id).run();await audit(env.DB,a,'product.delete',id);return json({ok:true});}
  if(path==='/upload'&&method==='POST'){
