@@ -28,3 +28,13 @@ body[data-theme="light"] .nav #navlinks a{color:#2c2418}
 body[data-theme="light"] .nav #navlinks .bmt-mobile-staff{color:#73521e}
 body[data-theme="light"] .bmt-footer-staff{color:#74501b;border-color:rgba(112,78,25,.35)}
 @media(prefers-reduced-motion:reduce){.bmt-footer-staff{transition:none}}
+
+/* Mobile navigation correction: never cover the hero while closed */
+@media(max-width:760px){
+ .nav #navlinks:not(.open){display:none!important;visibility:hidden!important;pointer-events:none!important;opacity:0!important}
+ .nav #navlinks.open{display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;position:fixed!important;top:calc(78px + env(safe-area-inset-top, 0px))!important;left:3%!important;right:3%!important;width:94%!important;max-height:calc(100dvh - 100px)!important;z-index:9999!important;overflow-y:auto!important}
+ .nav.glass{isolation:isolate;z-index:9998!important}
+ .hero{position:relative;z-index:1}
+ .nav #navlinks .bmt-mobile-staff{position:static!important;transform:none!important;left:auto!important;top:auto!important}
+}
+@media(max-width:760px){body[data-theme=light] .nav #navlinks.open{background:#f6f2eb!important;color:#282017!important}}
