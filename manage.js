@@ -1,12 +1,29 @@
-(()=>{'use strict';const $=s=>document.querySelector(s),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let items=[],user;const status=s=>$('#status').textContent=s;
-async function api(path,options={}){const r=await fetch('/api/'+path,{credentials:'same-origin',cache:'no-store',...options});const d=await r.json();if(!r.ok)throw Error(d.error||'Request failed');return d}const post=(path,data)=>api(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-async function reload(){items=await api('products');$('#products').innerHTML=items.map(x=>`<article><div><strong>${esc(x.name)}</strong><br><small>${esc(x.category)} · ${x.price==null?'Ask for price':'QAR '+esc(x.price)} · ${x.qty==null?'Stock unspecified':esc(x.qty)+' units'}</small></div><div><button data-edit="${esc(x.id)}">Edit</button><button data-delete="${esc(x.id)}">Delete</button></div></article>`).join('')||'No products yet';}
-$('#products').onclick=async e=>{const edit=e.target.closest('[data-edit]'),del=e.target.closest('[data-delete]');if(edit){const x=items.find(x=>x.id===edit.dataset.edit);if(!x)return;for(const [k,v] of Object.entries(x))if($('#form').elements.namedItem(k))$('#form').elements.namedItem(k).value=v??'';window.scrollTo(0,0)}if(del&&confirm('Delete this product from the live website?')){try{await api('products/'+encodeURIComponent(del.dataset.delete),{method:'DELETE'});await reload();status('Product removed')}catch(e){status(e.message)}}};
-$('#clear').onclick=()=>$('#form').reset();
-$('#form').onsubmit=async e=>{e.preventDefault();try{const f=new FormData(e.target);const obj=Object.fromEntries([...f.entries()].filter(([k])=>k!=='photo'));const file=null;if(file){status('Uploading image…');const r=await fetch('/api/upload',{method:'POST',headers:{'Content-Type':file.type},body:file});const d=await r.json();if(!r.ok)throw Error(d.error||'Upload failed');obj.image=d.url;}status('Publishing…');await post('products',obj);$('#form').reset();await reload();status('Published to live storefront')}catch(e){status(e.message)}};
-async function loadStaff(){const rows=await api('staff');$('#staff').innerHTML=rows.map(x=>`<article><span>${esc(x.email)} · ${esc(x.role)} · ${x.revoked?'Revoked':x.expires_at?'Until '+esc(x.expires_at):'Permanent'}</span>${x.role==='staff'&&!x.revoked?`<button data-revoke="${esc(x.email)}">Revoke</button>`:''}</article>`).join('');const log=await api('activity');$('#activity').innerHTML=log.map(x=>`<article><small>${esc(x.created_at)} · ${esc(x.email)} · ${esc(x.action)} · ${esc(x.detail)}</small></article>`).join('')};
-$('#staff').onclick=async e=>{const b=e.target.closest('[data-revoke]');if(b&&confirm('Revoke this staff account immediately?')){try{await api('staff/'+encodeURIComponent(b.dataset.revoke),{method:'DELETE'});await loadStaff();status('Access revoked')}catch(e){status(e.message)}}};
-$('#invite').onsubmit=async e=>{e.preventDefault();try{const f=new FormData(e.target);const d=await post('staff',{email:f.get('email'),password:f.get('password'),days:Number(f.get('days'))});await loadStaff();status(d.note)}catch(e){status(e.message)}};
-async function start(){try{user=await api('me');$('#who').textContent='Signed in: '+user.email+' ('+user.role+')';$('#app').hidden=false;$('#loginSection').hidden=true;$('#logout').hidden=false;if(user.role==='owner'){$('#staffSection').hidden=false;await loadStaff()}await reload();status('Ready')}catch(e){$('#who').textContent='Sign in to manage BMT';status('')}}
-$('#loginForm').onsubmit=async e=>{e.preventDefault();try{const f=new FormData(e.target);await post('login',{email:f.get('email'),password:f.get('password')});$('#loginForm').reset();await start()}catch(err){status(err.message)}};
-$('#logout').onclick=async()=>{await api('logout',{method:'POST'});location.reload()};start();})();
+async function api(path, options = {}) {
+  const r = await fetch('/api/' + path, {
+    credentials: 'same-origin',
+    cache: 'no-store',
+    ...options
+  });
+
+  const contentType = r.headers.get('content-type') || '';
+  const body = await r.text();
+
+  if (!contentType.includes('application/json')) {
+    throw new Error(
+      `API /api/${path} returned HTTP ${r.status} instead of JSON`
+    );
+  }
+
+  let data;
+  try {
+    data = JSON.parse(body);
+  } catch {
+    throw new Error(`API /api/${path} returned invalid JSON`);
+  }
+
+  if (!r.ok) {
+    throw new Error(data.error || `Request failed (${r.status})`);
+  }
+
+  return data;
+}
