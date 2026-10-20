@@ -1,0 +1,1 @@
+Added six AI-generated representative brand visuals: Motorola, Google Pixel, Vivo, Nothing, OnePlus, HONOR. Brand filters are interactive. Images are illustrations, not official inventory or product photos. Future product images can be added in Manage Shop; export the updated website to publish browser edits.

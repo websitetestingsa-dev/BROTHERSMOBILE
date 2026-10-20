@@ -1,0 +1,127 @@
+{
+  "products": [
+    {
+      "id": "sample1",
+      "name": "Smartphones",
+      "category": "Phones",
+      "brand": "Apple \u00b7 concept gallery",
+      "price": "",
+      "qty": "",
+      "image": "assets/iphone-black.png",
+      "description": "Illustrative iPhone concept image. Contact the shop to confirm actual models, prices and availability.",
+      "sample": true
+    },
+    {
+      "id": "sample2",
+      "name": "Wireless earbuds",
+      "category": "Accessories",
+      "brand": "Earbuds",
+      "price": "",
+      "qty": "",
+      "image": "assets/earbuds-premium.png",
+      "description": "Wireless earbuds category illustration. Enquire about available brands and prices.",
+      "sample": true
+    },
+    {
+      "id": "sample3",
+      "name": "Phone cases & covers",
+      "category": "Accessories",
+      "brand": "Cases & covers",
+      "price": "",
+      "qty": "",
+      "image": "assets/cases-covers.png",
+      "description": "Protective phone cases in different styles. Confirm compatibility and availability.",
+      "sample": true
+    },
+    {
+      "id": "sample4",
+      "name": "Wall chargers",
+      "category": "Accessories",
+      "brand": "Charging accessories",
+      "price": "",
+      "qty": "",
+      "image": "assets/chargers-premium.png",
+      "description": "USB-C wall chargers. Ask the store about compatible models and prices.",
+      "sample": true
+    },
+    {
+      "id": "sample5",
+      "name": "Power banks",
+      "category": "Accessories",
+      "brand": "Power banks",
+      "price": "",
+      "qty": "",
+      "image": "assets/power-banks.png",
+      "description": "Portable charging power banks. Contact the store for specifications and availability.",
+      "sample": true
+    },
+    {
+      "id": "sample6",
+      "name": "Phone holders",
+      "category": "Accessories",
+      "brand": "Phone stands",
+      "price": "",
+      "qty": "",
+      "image": "assets/phone-holders.png",
+      "description": "Adjustable phone stands and holders. Enquire for details.",
+      "sample": true
+    },
+    {
+      "id": "sample7",
+      "name": "Phone grips & wallets",
+      "category": "Accessories",
+      "brand": "Grips & wallets",
+      "price": "",
+      "qty": "",
+      "image": "assets/phone-grips-wallets.png",
+      "description": "Phone grip rings and card wallets. Check model compatibility.",
+      "sample": true
+    },
+    {
+      "id": "sample8",
+      "name": "Data cables",
+      "category": "Accessories",
+      "brand": "Cables",
+      "price": "",
+      "qty": "",
+      "image": "assets/data-cables.png",
+      "description": "USB-C data and charging cables. Confirm available lengths and specifications.",
+      "sample": true
+    },
+    {
+      "id": "sample9",
+      "name": "Wireless chargers",
+      "category": "Accessories",
+      "brand": "Wireless charging",
+      "price": "",
+      "qty": "",
+      "image": "assets/wireless-chargers.png",
+      "description": "Wireless charging stands and stations. Confirm device compatibility.",
+      "sample": true
+    },
+    {
+      "id": "sample10",
+      "name": "Screen protectors",
+      "category": "Accessories",
+      "brand": "Screen protection",
+      "price": "",
+      "qty": "",
+      "image": "assets/screen-protectors.png",
+      "description": "Tempered-glass screen protection. Check compatible phone models.",
+      "sample": true
+    }
+  ],
+  "promos": [
+    {
+      "id": "intro",
+      "title": "Your next upgrade starts here",
+      "text": "Follow our Instagram for updates and ask about the latest arrivals.",
+      "image": "",
+      "sample": true
+    }
+  ],
+  "settings": {
+    "instagram": "https://www.instagram.com/2brotherstreading/",
+    "whatsapp": ""
+  }
+}
