@@ -1,0 +1,16 @@
+/* BMT ONE — premium, accessible, functional Experience cards */
+#services .service-list{display:flex;flex-direction:column;gap:12px;min-width:0}
+#services .service-row.bmt-action-row{box-sizing:border-box;position:relative;display:grid;grid-template-columns:44px minmax(0,1fr) 26px;align-items:center;gap:18px;width:100%;min-width:0;min-height:120px;padding:25px 30px;text-decoration:none!important;color:inherit;background:linear-gradient(118deg,rgba(31,31,29,.95),rgba(8,8,8,.98));border:1px solid rgba(218,190,128,.24);border-radius:27px;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 15px 35px rgba(0,0,0,.13);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease,background .2s ease}
+#services .service-row.bmt-action-row::before{content:'';position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(232,202,139,.45),transparent);pointer-events:none}
+#services .service-row.bmt-action-row:hover,#services .service-row.bmt-action-row:focus-visible{transform:translateY(-3px);border-color:rgba(226,190,113,.75);box-shadow:0 18px 40px rgba(0,0,0,.3),0 0 28px rgba(201,164,90,.09)}
+#services .service-row.bmt-action-row:focus-visible{outline:2px solid #e6c889;outline-offset:4px}
+#services .bmt-service-number{display:grid;place-items:center;width:42px;height:42px;flex:none;border:1px solid rgba(221,188,115,.3);border-radius:14px;color:#dfc58c!important;font-size:15px!important;font-weight:700;background:rgba(221,188,115,.06)}
+#services .service-row.bmt-action-row>div{min-width:0}#services .service-row.bmt-action-row h3{margin:0 0 9px!important;color:#f5f3ee;font-size:clamp(18px,1.6vw,24px);line-height:1.3;overflow-wrap:anywhere}
+#services .service-row.bmt-action-row p{margin:0!important;color:#aaa9a5;font-size:clamp(13px,1vw,15px);line-height:1.6;overflow-wrap:anywhere}
+#services .bmt-service-arrow{display:grid;place-items:center;width:26px;height:26px;color:#dfc58c!important;font-size:20px!important;transition:transform .2s ease}
+#services .bmt-action-row:hover .bmt-service-arrow{transform:translate(3px,-3px)}
+#services .bmt-partner-row{border-color:rgba(224,189,107,.5)!important;background:linear-gradient(115deg,rgba(51,41,23,.72),rgba(9,9,9,.98))!important}
+#services .bmt-partner-row h3{color:#e5ce93!important}
+#services .bmt-partner-row[hidden]{display:none!important}
+@media(max-width:720px){#services .service-row.bmt-action-row{grid-template-columns:36px minmax(0,1fr) 20px;gap:12px;min-height:100px;padding:20px 16px;border-radius:20px}#services .bmt-service-number{width:35px;height:35px;border-radius:11px}}
+@media(prefers-reduced-motion:reduce){#services .service-row.bmt-action-row,#services .bmt-service-arrow{transition:none}}
