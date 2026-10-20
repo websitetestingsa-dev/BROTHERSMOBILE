@@ -1,0 +1,5 @@
+/* Only public product cards; brand imagery is unaffected. */
+.bmt-stock-empty{grid-column:1/-1;padding:28px 20px;border:1px solid rgba(200,172,107,.22);border-radius:18px;color:var(--muted,#aaa);text-align:center}
+.bmt-stock-card{min-width:0;overflow:hidden;border:1px solid rgba(200,172,107,.22);border-radius:20px;background:rgba(128,128,128,.05)}
+.bmt-stock-card img{width:100%;aspect-ratio:4/3;object-fit:contain;display:block;background:rgba(120,120,120,.08)}
+.bmt-stock-info{padding:18px}.bmt-stock-info h3{margin:0 0 8px}.bmt-stock-info p{margin:6px 0;overflow-wrap:anywhere}.bmt-stock-info strong{display:block;margin-top:12px;color:#cdb778}
