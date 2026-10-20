@@ -50,6 +50,12 @@ export async function onRequest({request,env,params}){
  }
  const a=await actor(request,env);if(!a)return deny(401);
  if(path==='/me'&&method==='GET')return json(a);
+ if(path==='/business-profile/all'&&method==='GET'){
+  if(a.role!=='owner')return deny();
+  const rows=(await env.DB.prepare('SELECT key,value FROM site_settings').all()).results;
+  const links=(await env.DB.prepare('SELECT id,platform,label,url,visible,sort_order FROM social_links ORDER BY sort_order,id LIMIT 50').all()).results;
+  return json({settings:Object.fromEntries(rows.map(r=>[r.key,r.value])),links});
+ }
  if(path==='/business-profile'&&method==='PUT'){
   if(a.role!=='owner')return deny();
   const x=await body(request);if(!x||!Array.isArray(x.links)||x.links.length>50)return json({error:'Invalid profile'},400);
