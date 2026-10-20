@@ -1,7 +1,11 @@
-# BMT ONE smart product editor — drop-in patch
+# BMT ONE — Supplier Delivery Receiving
 
-Copy `manage.html`, `product-memory.js`, `product-memory.css` to the root of your existing GitHub repository. Keep your existing `manage.js`, `inventory-console.js`, `inventory-console.css`, `functions/`, D1 database and assets unchanged. This `manage.html` is based on the previously delivered grouped inventory dashboard.
+Upload the four files in this ZIP to the GitHub repository root, replacing `manage.html` only. Preserve your existing `manage.js`, `inventory-console.js`, Cloudflare Functions, D1 database and assets. This package builds on the Smart Product Editor and Grouped Inventory upgrades.
 
-Suggestions include common brand and product choices plus product names/brands/image paths from the authenticated `/api/products` response. Choices are also remembered in the current browser using localStorage. Brand and product name fields remain editable, so custom items can be added. Quantity quick buttons are presets, not stock adjustments; saving is still required.
+Files: manage.html, vendor-receiving.js, vendor-receiving.css, README.md.
 
-**Important:** Browser memory is per browser/device, while actual products and quantities remain in Cloudflare D1. Suggestions do not create stock records or alter inventory until Save and publish is used. The `Clear this browser’s suggestions` button does not delete products.
+Features: product name dropdown plus custom entry, supplier memory in local browser, XLSX/CSV import, photo OCR (JPG/PNG/WebP), PDF text extraction and OCR for scanned PDF pages, line-by-line editable review, manual matching to existing SKUs, and receiving stock as increments rather than replacing totals.
+
+Supplier spreadsheet headers: Name, Brand, Quantity, SKU (optional). Matching existing SKU is safest. Example: iPhone 16 Pro Max, Apple, 50, IP16PM. Images/PDF OCR is approximate: every line must be reviewed, particularly quantities. Scan processing loads Tesseract.js, pdf.js, or SheetJS from external CDNs, so an internet connection is required; this is client-side processing, not server-side uploads. Vendor invoices are not uploaded or saved to Cloudflare. The supplier name is remembered only in the current browser. Product records are saved to Cloudflare D1 via the existing authenticated /api/products endpoint.
+
+IMPORTANT: This is not a transactional purchase-order system. If the network fails mid-import, some lines may already be received. Do not retry the whole delivery; reconcile before continuing. Existing stock with unknown quantity is treated as zero when receiving. Check all rows and SKU matches. No backend authentication changes are included. Verify on staging before production.
