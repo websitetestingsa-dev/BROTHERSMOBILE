@@ -1,0 +1,154 @@
+{
+  "images": [
+    {
+      "path": "assets/brothers-logo.jpg",
+      "name": "Brothers Logo",
+      "category": "General"
+    },
+    {
+      "path": "assets/cases-covers.png",
+      "name": "Cases Covers",
+      "category": "General"
+    },
+    {
+      "path": "assets/charger.png",
+      "name": "Charger",
+      "category": "General"
+    },
+    {
+      "path": "assets/chargers-premium.png",
+      "name": "Chargers Premium",
+      "category": "General"
+    },
+    {
+      "path": "assets/data-cables.png",
+      "name": "Data Cables",
+      "category": "General"
+    },
+    {
+      "path": "assets/earbuds-premium.png",
+      "name": "Earbuds Premium",
+      "category": "General"
+    },
+    {
+      "path": "assets/earbuds.png",
+      "name": "Earbuds",
+      "category": "General"
+    },
+    {
+      "path": "assets/google-showcase.png",
+      "name": "Google Showcase",
+      "category": "General"
+    },
+    {
+      "path": "assets/hero-showcase.png",
+      "name": "Hero Showcase",
+      "category": "General"
+    },
+    {
+      "path": "assets/honor-showcase.png",
+      "name": "Honor Showcase",
+      "category": "General"
+    },
+    {
+      "path": "assets/iphone-black.png",
+      "name": "Iphone Black",
+      "category": "General"
+    },
+    {
+      "path": "assets/iphone-burgundy.png",
+      "name": "Iphone Burgundy",
+      "category": "General"
+    },
+    {
+      "path": "assets/iphone-glacier.png",
+      "name": "Iphone Glacier",
+      "category": "General"
+    },
+    {
+      "path": "assets/iphone-silver.png",
+      "name": "Iphone Silver",
+      "category": "General"
+    },
+    {
+      "path": "assets/motorola-showcase.png",
+      "name": "Motorola Showcase",
+      "category": "General"
+    },
+    {
+      "path": "assets/nothing-showcase.png",
+      "name": "Nothing Showcase",
+      "category": "General"
+    },
+    {
+      "path": "assets/oneplus-showcase.png",
+      "name": "Oneplus Showcase",
+      "category": "General"
+    },
+    {
+      "path": "assets/oppo-concept.png",
+      "name": "Oppo Concept",
+      "category": "General"
+    },
+    {
+      "path": "assets/phone-grips-wallets.png",
+      "name": "Phone Grips Wallets",
+      "category": "General"
+    },
+    {
+      "path": "assets/phone-holders.png",
+      "name": "Phone Holders",
+      "category": "General"
+    },
+    {
+      "path": "assets/power-banks.png",
+      "name": "Power Banks",
+      "category": "General"
+    },
+    {
+      "path": "assets/premium-storefront.png",
+      "name": "Premium Storefront",
+      "category": "General"
+    },
+    {
+      "path": "assets/samsung-fold7.png",
+      "name": "Samsung Fold7",
+      "category": "General"
+    },
+    {
+      "path": "assets/samsung-s26.png",
+      "name": "Samsung S26",
+      "category": "General"
+    },
+    {
+      "path": "assets/screen-protectors.png",
+      "name": "Screen Protectors",
+      "category": "General"
+    },
+    {
+      "path": "assets/services-emblem.png",
+      "name": "Services Emblem",
+      "category": "General"
+    },
+    {
+      "path": "assets/storefront.jpg",
+      "name": "Storefront",
+      "category": "General"
+    },
+    {
+      "path": "assets/vivo-showcase.png",
+      "name": "Vivo Showcase",
+      "category": "General"
+    },
+    {
+      "path": "assets/wireless-chargers.png",
+      "name": "Wireless Chargers",
+      "category": "General"
+    },
+    {
+      "path": "assets/xiaomi-17-pro.png",
+      "name": "Xiaomi 17 Pro",
+      "category": "General"
+    }
+  ]
+}
