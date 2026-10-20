@@ -102,6 +102,29 @@ export async function onRequest({request,env,params}){
   await audit(env.DB,a,'review.moderate',id+':'+x.status);return json({ok:true});
  }
 
+ if(path.startsWith('/products/publish/')&&method==='PATCH'){
+  if(a.role!=='owner')return deny();
+  const id=path.slice('/products/publish/'.length);
+  if(!/^[a-zA-Z0-9_-]{1,80}$/.test(id))return json({error:'Invalid product ID'},400);
+  const x=await body(request);
+  if(!['publish','draft'].includes(x?.action))return json({error:'Invalid publishing action'},400);
+  const p=await env.DB.prepare('SELECT * FROM products WHERE id=?').bind(id).first();
+  if(!p)return json({error:'Product not found'},404);
+  if(x.action==='publish'){
+   const missing=[];
+   if(!String(p.name||'').trim())missing.push('name');
+   if(!String(p.category||'').trim())missing.push('category');
+   if(!(Number(p.price)>0))missing.push('selling price');
+   if(p.qty===null||!Number.isInteger(Number(p.qty))||Number(p.qty)<0)missing.push('quantity');
+   if(!safeImage(p.image)||!String(p.image||'').trim())missing.push('image');
+   if(String(p.description||'').trim().length<10)missing.push('specifications');
+   if(missing.length)return json({error:'Complete before publishing: '+missing.join(', '),missing},400);
+  }
+  const status=x.action==='publish'?'published':'draft';
+  await env.DB.prepare('UPDATE products SET publish_status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').bind(status,id).run();
+  await audit(env.DB,a,'product.'+x.action,id);
+  return json({ok:true,publish_status:status});
+ }
  if(path==='/products'&&method==='GET')return json((await env.DB.prepare('SELECT * FROM products ORDER BY updated_at DESC LIMIT 500').all()).results);
  if(path==='/products'&&method==='POST'){
  const x=await body(request);if(!x||typeof x.name!=='string'||!x.name.trim()||x.name.length>140||!['Phones','Accessories','Other'].includes(x.category)||!safeImage(x.image||'')||String(x.description||'').length>2000||String(x.brand||'').length>150)return json({error:'Invalid product'},400);
@@ -109,7 +132,7 @@ export async function onRequest({request,env,params}){
  const id=typeof x.id==='string'&&/^[a-zA-Z0-9_-]{1,80}$/.test(x.id)?x.id:crypto.randomUUID();
  await env.DB.prepare(`INSERT INTO products(id,name,brand,category,price,qty,image,description,sample,publish_status) VALUES(?,?,?,?,?,?,?,?,0,'draft') ON CONFLICT(id) DO UPDATE SET name=excluded.name,brand=excluded.brand,category=excluded.category,price=excluded.price,qty=excluded.qty,image=excluded.image,description=excluded.description,sample=0,publish_status='draft',updated_at=CURRENT_TIMESTAMP`).bind(id,x.name.trim(),x.brand||'',x.category,price,qty,x.image||'',x.description||'').run();await audit(env.DB,a,'product.save',id);return json({id});
  }
- if(path.startsWith('/products/')&&method==='DELETE'){const id=path.slice(10);if(!/^[a-zA-Z0-9_-]{1,80}$/.test(id))return json({error:'Invalid ID'},400);await env.DB.prepare('DELETE FROM products WHERE id=?').bind(id).run();await audit(env.DB,a,'product.delete',id);return json({ok:true});}
+ if(path.startsWith('/products/')&&method==='DELETE'){if(a.role!=='owner')return deny();const id=path.slice(10);if(!/^[a-zA-Z0-9_-]{1,80}$/.test(id))return json({error:'Invalid ID'},400);await env.DB.prepare('DELETE FROM products WHERE id=?').bind(id).run();await audit(env.DB,a,'product.delete',id);return json({ok:true});}
  if(path==='/upload'&&method==='POST'){
  if(!env.IMAGES)return json({error:'Image uploads disabled. Select an existing assets/ image URL.'},503);const type=request.headers.get('content-type')||'';const allowed={'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif'};if(!allowed[type])return json({error:'Only JPG PNG WEBP GIF supported'},400);const bytes=await request.arrayBuffer();if(!bytes.byteLength||bytes.byteLength>5*1024*1024)return json({error:'Image must be under 5MB'},400);
  const u=new Uint8Array(bytes);const valid=type==='image/png'?u[0]===137&&u[1]===80&&u[2]===78&&u[3]===71:type==='image/jpeg'?u[0]===255&&u[1]===216:type==='image/gif'?u[0]===71&&u[1]===73&&u[2]===70:u[0]===82&&u[1]===73&&u[2]===70&&u[3]===70&&u[8]===87&&u[9]===69&&u[10]===66&&u[11]===80;
